@@ -31,6 +31,10 @@
 - (void)_onLikeButtonPressed:(id)arg1 {
     CONFIRMPOSTLIKE(%orig);
 }
+// Newer IG versions (no sender argument)
+- (void)_onLikeButtonPressed {
+    CONFIRMPOSTLIKE(%orig);
+}
 %end
 %hook IGFeedPhotoView
 - (void)_onDoubleTap:(id)arg1 {

@@ -688,6 +688,13 @@ shouldPersistLastBugReportId:(id)arg6
     longPress.minimumPressDuration = 1;
     longPress.numberOfTouchesRequired = 5;
     [self.view addGestureRecognizer:longPress];
+
+    // Recognize 3-finger long press (opens tweak settings, works on all IG versions)
+    UILongPressGestureRecognizer *settingsLongPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleSettingsLongPress:)];
+    settingsLongPress.minimumPressDuration = 1;
+    settingsLongPress.numberOfTouchesRequired = 3;
+    settingsLongPress.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:settingsLongPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
     if (sender.state != UIGestureRecognizerStateBegan) return;
@@ -695,6 +702,11 @@ shouldPersistLastBugReportId:(id)arg6
     if ([SCIUtils getBoolPref:@"flex_instagram"]) {
         [[objc_getClass("FLEXManager") sharedManager] showExplorer];
     }
+}
+%new - (void)handleSettingsLongPress:(UILongPressGestureRecognizer *)sender {
+    if (sender.state != UIGestureRecognizerStateBegan) return;
+
+    [SCIUtils showSettingsVC:self.view.window];
 }
 %end
 

@@ -173,7 +173,12 @@ static void initDownloaders () {
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
     if (sender.state != UIGestureRecognizerStateBegan) return;
     
-    NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:self.video];
+    // Get reel media (newer IG versions removed the -video getter)
+    IGMedia *media = [self respondsToSelector:@selector(video)]
+                   ? self.video
+                   : [SCIUtils getIvarForObj:self name:"_mediaPassthrough"];
+
+    NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:media];
     if (!videoUrl) {
         [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from reel"];
 

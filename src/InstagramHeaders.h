@@ -429,7 +429,7 @@
 - (void)notesBubbleEditorViewControllerDidUpdateWithCustomThemeCreationModel:(id)model;
 @end
 
-@interface _TtC20IGDirectNotesUISwift41IGDirectNotesBubbleEditorColorPaletteView : UIView
+@interface _TtC26IGNotesBubbleCreationSwift41IGDirectNotesBubbleEditorColorPaletteView : UIView
 @property (nonatomic, copy) UIColor *backgroundColor; // new
 @property (nonatomic, copy) UIColor *textColor; // new
 @property (nonatomic, copy) NSString *emojiText; // new
@@ -438,7 +438,7 @@
 - (void)applySCICustomTheme:(NSString *)target; // new
 @end
 
-@interface _TtC20IGDirectNotesUISwift39IGDirectNotesBubbleEditorViewController : UIViewController
+@interface _TtC26IGNotesBubbleCreationSwift39IGDirectNotesBubbleEditorViewController : UIViewController
 @property (nonatomic) IGDirectNotesComposerViewController *delegate;
 @end
 

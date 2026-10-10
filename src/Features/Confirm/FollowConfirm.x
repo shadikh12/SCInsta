@@ -46,6 +46,10 @@
 - (void)_didTapAYMFActionButton {
     CONFIRMFOLLOW(%orig);
 }
+// Newer IG versions (with sender argument)
+- (void)_didTapAYMFActionButton:(id)arg1 {
+    CONFIRMFOLLOW(%orig);
+}
 %end
 %hook IGHScrollAYMFActionButton
 - (void)_didTapTextActionButton {

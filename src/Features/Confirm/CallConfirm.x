@@ -22,4 +22,24 @@
         return %orig;
     }
 }
+
+// Newer IG versions (no sender argument)
+- (void)_didTapAudioButton {
+    if ([SCIUtils getBoolPref:@"call_confirm"]) {
+        NSLog(@"[SCInsta] Call confirm triggered");
+
+        [SCIUtils showConfirmation:^(void) { %orig; }];
+    } else {
+        return %orig;
+    }
+}
+- (void)_didTapVideoButton {
+    if ([SCIUtils getBoolPref:@"call_confirm"]) {
+        NSLog(@"[SCInsta] Call confirm triggered");
+
+        [SCIUtils showConfirmation:^(void) { %orig; }];
+    } else {
+        return %orig;
+    }
+}
 %end
