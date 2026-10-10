@@ -74,6 +74,11 @@ BOOL dmVisualMsgsViewedButtonEnabled = false;
         }
     });
 
+    // Warn about enabled features that don't support this Instagram version
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((openDelay + 3.0) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [SCIUtils showFeatureCompatibilityReport:YES];
+    });
+
     NSLog(@"[SCInsta] Cleaning cache...");
     [SCIUtils cleanCache];
 
@@ -697,16 +702,20 @@ shouldPersistLastBugReportId:(id)arg6
     [self.view addGestureRecognizer:settingsLongPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"FLEX explorer" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    if ([SCIUtils getBoolPref:@"flex_instagram"]) {
-        [[objc_getClass("FLEXManager") sharedManager] showExplorer];
-    }
+        if ([SCIUtils getBoolPref:@"flex_instagram"]) {
+            [[objc_getClass("FLEXManager") sharedManager] showExplorer];
+        }
+    }];
 }
 %new - (void)handleSettingsLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Open settings" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    [SCIUtils showSettingsVC:self.view.window];
+        [SCIUtils showSettingsVC:self.view.window];
+    }];
 }
 %end
 

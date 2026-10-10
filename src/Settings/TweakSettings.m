@@ -231,6 +231,11 @@
                                                                                icon:nil
                                                                              action:^(void) { [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"SCInstaFirstRun"]; [SCIUtils showRestartConfirmation];}
                                                 ],
+                                                [SCISetting buttonCellWithTitle:@"Check feature compatibility"
+                                                                           subtitle:@"Lists enabled features that don't support this Instagram version"
+                                                                               icon:nil
+                                                                             action:^(void) { [SCIUtils showFeatureCompatibilityReport:NO]; }
+                                                ],
                                             ]
                                         },
                                         @{

@@ -125,6 +125,17 @@
     return hud;
 }
 
++ (void)runFeature:(NSString *)feature block:(void(^)(void))block {
+    @try {
+        block();
+    }
+    @catch (NSException *exception) {
+        NSLog(@"[SCInsta] %@ failed: %@ (%@)", feature, exception.reason, exception.name);
+
+        [SCIUtils showErrorHUDWithDescription:[NSString stringWithFormat:@"%@ failed\n\nThis feature may not support Instagram v%@", feature, [SCIUtils IGVersionString]]];
+    }
+}
+
 // Media
 + (NSURL *)getPhotoUrl:(IGPhoto *)photo {
     if (!photo) return nil;

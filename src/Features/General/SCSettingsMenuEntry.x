@@ -22,11 +22,13 @@
     }
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Open settings" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
     
-    NSLog(@"[SCInsta] Tweak settings gesture activated");
+        NSLog(@"[SCInsta] Tweak settings gesture activated");
 
-    [SCIUtils showSettingsVC:[self window]];
+        [SCIUtils showSettingsVC:[self window]];
+    }];
 }
 %end
 
@@ -51,8 +53,10 @@
     }
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Open settings" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    [SCIUtils showSettingsVC:[self window]];
+        [SCIUtils showSettingsVC:[self window]];
+    }];
 }
 %end

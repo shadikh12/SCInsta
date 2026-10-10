@@ -37,44 +37,46 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download post photo" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    // Get photo instance
-    IGPhoto *photo;
+        // Get photo instance
+        IGPhoto *photo;
 
-    if ([self.delegate isKindOfClass:%c(IGFeedItemPhotoCell)]) {
-        IGFeedItemPhotoCellConfiguration *_configuration = MSHookIvar<IGFeedItemPhotoCellConfiguration *>(self.delegate, "_configuration");
-        if (!_configuration) return;
+        if ([self.delegate isKindOfClass:%c(IGFeedItemPhotoCell)]) {
+            IGFeedItemPhotoCellConfiguration *_configuration = MSHookIvar<IGFeedItemPhotoCellConfiguration *>(self.delegate, "_configuration");
+            if (!_configuration) return;
 
-        photo = MSHookIvar<IGPhoto *>(_configuration, "_photo");
-    }
-    else if ([self.delegate isKindOfClass:%c(IGFeedItemPagePhotoCell)]) {
-        IGFeedItemPagePhotoCell *pagePhotoCell = self.delegate;
-
-        photo = pagePhotoCell.pagePhotoPost.photo;
-    }
-
-    NSURL *photoUrl = [SCIUtils getPhotoUrl:photo];
-
-    // Newer IG versions (carousel cells are Swift): use the url of the displayed image
-    if (!photoUrl) {
-        IGImageProgressView *_photoImageView = [SCIUtils getIvarForObj:self name:"_photoImageView"];
-        if ([_photoImageView respondsToSelector:@selector(imageSpecifier)]) {
-            photoUrl = _photoImageView.imageSpecifier.url;
+            photo = MSHookIvar<IGPhoto *>(_configuration, "_photo");
         }
-    }
+        else if ([self.delegate isKindOfClass:%c(IGFeedItemPagePhotoCell)]) {
+            IGFeedItemPagePhotoCell *pagePhotoCell = self.delegate;
 
-    if (!photoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from post"];
+            photo = pagePhotoCell.pagePhotoPost.photo;
+        }
+
+        NSURL *photoUrl = [SCIUtils getPhotoUrl:photo];
+
+        // Newer IG versions (carousel cells are Swift): use the url of the displayed image
+        if (!photoUrl) {
+            IGImageProgressView *_photoImageView = [SCIUtils getIvarForObj:self name:"_photoImageView"];
+            if ([_photoImageView respondsToSelector:@selector(imageSpecifier)]) {
+                photoUrl = _photoImageView.imageSpecifier.url;
+            }
+        }
+
+        if (!photoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from post"];
         
-        return;
-    }
+            return;
+        }
 
-    // Download image & show in share menu
-    initDownloaders();
-    [imageDownloadDelegate downloadFileWithURL:photoUrl
-                                 fileExtension:[[photoUrl lastPathComponent]pathExtension]
-                                      hudLabel:nil];
+        // Download image & show in share menu
+        initDownloaders();
+        [imageDownloadDelegate downloadFileWithURL:photoUrl
+                                     fileExtension:[[photoUrl lastPathComponent]pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -99,20 +101,22 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download post video" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:[self mediaCellFeedItem]];
-    if (!videoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from post"];
+        NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:[self mediaCellFeedItem]];
+        if (!videoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from post"];
 
-        return;
-    }
+            return;
+        }
 
-    // Download video & show in share menu
-    initDownloaders();
-    [videoDownloadDelegate downloadFileWithURL:videoUrl
-                                 fileExtension:[[videoUrl lastPathComponent] pathExtension]
-                                      hudLabel:nil];
+        // Download video & show in share menu
+        initDownloaders();
+        [videoDownloadDelegate downloadFileWithURL:videoUrl
+                                     fileExtension:[[videoUrl lastPathComponent] pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -140,22 +144,24 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download reel photo" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    IGPhoto *_photo = MSHookIvar<IGPhoto *>(self, "_photo");
+        IGPhoto *_photo = MSHookIvar<IGPhoto *>(self, "_photo");
 
-    NSURL *photoUrl = [SCIUtils getPhotoUrl:_photo];
-    if (!photoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from reel"];
+        NSURL *photoUrl = [SCIUtils getPhotoUrl:_photo];
+        if (!photoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from reel"];
 
-        return;
-    }
+            return;
+        }
 
-    // Download image & show in share menu
-    initDownloaders();
-    [imageDownloadDelegate downloadFileWithURL:photoUrl
-                                 fileExtension:[[photoUrl lastPathComponent]pathExtension]
-                                      hudLabel:nil];
+        // Download image & show in share menu
+        initDownloaders();
+        [imageDownloadDelegate downloadFileWithURL:photoUrl
+                                     fileExtension:[[photoUrl lastPathComponent]pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -180,25 +186,27 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download reel video" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
     
-    // Get reel media (newer IG versions removed the -video getter)
-    IGMedia *media = [self respondsToSelector:@selector(video)]
-                   ? self.video
-                   : [SCIUtils getIvarForObj:self name:"_mediaPassthrough"];
+        // Get reel media (newer IG versions removed the -video getter)
+        IGMedia *media = [self respondsToSelector:@selector(video)]
+                       ? self.video
+                       : [SCIUtils getIvarForObj:self name:"_mediaPassthrough"];
 
-    NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:media];
-    if (!videoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from reel"];
+        NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:media];
+        if (!videoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from reel"];
 
-        return;
-    }
+            return;
+        }
 
-    // Download video & show in share menu
-    initDownloaders();
-    [videoDownloadDelegate downloadFileWithURL:videoUrl
-                                 fileExtension:[[videoUrl lastPathComponent] pathExtension]
-                                      hudLabel:nil];
+        // Download video & show in share menu
+        initDownloaders();
+        [videoDownloadDelegate downloadFileWithURL:videoUrl
+                                     fileExtension:[[videoUrl lastPathComponent] pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -226,20 +234,22 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download story photo" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    NSURL *photoUrl = [SCIUtils getPhotoUrlForMedia:[self item]];
-    if (!photoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from story"];
+        NSURL *photoUrl = [SCIUtils getPhotoUrlForMedia:[self item]];
+        if (!photoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from story"];
         
-        return;
-    }
+            return;
+        }
 
-    // Download image & show in share menu
-    initDownloaders();
-    [imageDownloadDelegate downloadFileWithURL:photoUrl
-                                 fileExtension:[[photoUrl lastPathComponent]pathExtension]
-                                      hudLabel:nil];
+        // Download image & show in share menu
+        initDownloaders();
+        [imageDownloadDelegate downloadFileWithURL:photoUrl
+                                     fileExtension:[[photoUrl lastPathComponent]pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -264,21 +274,23 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download story video" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:self.item];
+        NSURL *videoUrl = [SCIUtils getVideoUrlForMedia:self.item];
     
-    if (!videoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from story"];
+        if (!videoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from story"];
 
-        return;
-    }
+            return;
+        }
 
-    // Download video & show in share menu
-    initDownloaders();
-    [videoDownloadDelegate downloadFileWithURL:videoUrl
-                                 fileExtension:[[videoUrl lastPathComponent] pathExtension]
-                                      hudLabel:nil];
+        // Download video & show in share menu
+        initDownloaders();
+        [videoDownloadDelegate downloadFileWithURL:videoUrl
+                                     fileExtension:[[videoUrl lastPathComponent] pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -303,42 +315,44 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Download story video" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    NSURL *videoUrl;
+        NSURL *videoUrl;
 
-    IGStoryFullscreenSectionController *captionDelegate = self.captionDelegate;
-    if (captionDelegate) {
-        videoUrl = [SCIUtils getVideoUrlForMedia:captionDelegate.currentStoryItem];
-    }
-    else {
-        // Direct messages video player
-        id parentVC = [SCIUtils nearestViewControllerForView:self];
-        if (!parentVC || ![parentVC isKindOfClass:%c(IGDirectVisualMessageViewerController)]) return;
+        IGStoryFullscreenSectionController *captionDelegate = self.captionDelegate;
+        if (captionDelegate) {
+            videoUrl = [SCIUtils getVideoUrlForMedia:captionDelegate.currentStoryItem];
+        }
+        else {
+            // Direct messages video player
+            id parentVC = [SCIUtils nearestViewControllerForView:self];
+            if (!parentVC || ![parentVC isKindOfClass:%c(IGDirectVisualMessageViewerController)]) return;
 
-        IGDirectVisualMessageViewerViewModeAwareDataSource *_dataSource = MSHookIvar<IGDirectVisualMessageViewerViewModeAwareDataSource *>(parentVC, "_dataSource");
-        if (!_dataSource) return;
+            IGDirectVisualMessageViewerViewModeAwareDataSource *_dataSource = MSHookIvar<IGDirectVisualMessageViewerViewModeAwareDataSource *>(parentVC, "_dataSource");
+            if (!_dataSource) return;
         
-        IGDirectVisualMessage *_currentMessage = MSHookIvar<IGDirectVisualMessage *>(_dataSource, "_currentMessage"); 
-        if (!_currentMessage) return;
+            IGDirectVisualMessage *_currentMessage = MSHookIvar<IGDirectVisualMessage *>(_dataSource, "_currentMessage"); 
+            if (!_currentMessage) return;
         
-        IGVideo *rawVideo = _currentMessage.rawVideo;
-        if (!rawVideo) return;
+            IGVideo *rawVideo = _currentMessage.rawVideo;
+            if (!rawVideo) return;
         
-        videoUrl = [SCIUtils getVideoUrl:rawVideo];
-    }
+            videoUrl = [SCIUtils getVideoUrl:rawVideo];
+        }
     
-    if (!videoUrl) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from story"];
+        if (!videoUrl) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not extract video url from story"];
 
-        return;
-    }
+            return;
+        }
 
-    // Download video & show in share menu
-    initDownloaders();
-    [videoDownloadDelegate downloadFileWithURL:videoUrl
-                                 fileExtension:[[videoUrl lastPathComponent] pathExtension]
-                                      hudLabel:nil];
+        // Download video & show in share menu
+        initDownloaders();
+        [videoDownloadDelegate downloadFileWithURL:videoUrl
+                                     fileExtension:[[videoUrl lastPathComponent] pathExtension]
+                                          hudLabel:nil];
+    }];
 }
 %end
 
@@ -362,21 +376,23 @@ static void initDownloaders () {
     [self addGestureRecognizer:longPress];
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Save profile picture" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    IGImageView *_imageView = MSHookIvar<IGImageView *>(self, "_imageView");
-    if (!_imageView) return;
+        IGImageView *_imageView = MSHookIvar<IGImageView *>(self, "_imageView");
+        if (!_imageView) return;
     
-    IGImageSpecifier *imageSpecifier = _imageView.imageSpecifier;
-    if (!imageSpecifier) return;
+        IGImageSpecifier *imageSpecifier = _imageView.imageSpecifier;
+        if (!imageSpecifier) return;
 
-    NSURL *imageUrl = imageSpecifier.url;
-    if (!imageUrl) return;
+        NSURL *imageUrl = imageSpecifier.url;
+        if (!imageUrl) return;
 
-    // Download image & preview in quick look
-    initDownloaders();
-    [imageDownloadDelegate downloadFileWithURL:imageUrl
-                                 fileExtension:[[imageUrl lastPathComponent] pathExtension]
-                                      hudLabel:@"Loading"];
+        // Download image & preview in quick look
+        initDownloaders();
+        [imageDownloadDelegate downloadFileWithURL:imageUrl
+                                     fileExtension:[[imageUrl lastPathComponent] pathExtension]
+                                          hudLabel:@"Loading"];
+    }];
 }
 %end

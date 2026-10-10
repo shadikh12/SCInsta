@@ -43,39 +43,43 @@ static BOOL forceMarkSeen = NO;
 
 // Messages seen button
 %new - (void)seenButtonHandler:(UIBarButtonItem *)sender {
-    UIViewController *nearestVC = [SCIUtils nearestViewControllerForView:self];
-    if (![nearestVC isKindOfClass:%c(IGDirectThreadViewController)]) return;
+    [SCIUtils runFeature:@"Mark messages as seen" block:^{
+        UIViewController *nearestVC = [SCIUtils nearestViewControllerForView:self];
+        if (![nearestVC isKindOfClass:%c(IGDirectThreadViewController)]) return;
 
-    // Newer IG versions moved markLastMessageAsSeen to the thread's feature manager
-    id seenTarget = nearestVC;
-    if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
-        seenTarget = [SCIUtils getIvarForObj:nearestVC name:"_featureManager"];
-    }
-    if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
-        [SCIUtils showErrorHUDWithDescription:@"Could not mark messages as seen"];
-        return;
-    }
+        // Newer IG versions moved markLastMessageAsSeen to the thread's feature manager
+        id seenTarget = nearestVC;
+        if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
+            seenTarget = [SCIUtils getIvarForObj:nearestVC name:"_featureManager"];
+        }
+        if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
+            [SCIUtils showErrorHUDWithDescription:@"Could not mark messages as seen"];
+            return;
+        }
 
-    forceMarkSeen = YES;
-    [seenTarget markLastMessageAsSeen];
-    forceMarkSeen = NO;
+        forceMarkSeen = YES;
+        [seenTarget markLastMessageAsSeen];
+        forceMarkSeen = NO;
 
-    [SCIUtils showToastForDuration:2.5 title:@"Marked messages as seen"];
+        [SCIUtils showToastForDuration:2.5 title:@"Marked messages as seen"];
+    }];
 }
 // DM visual messages viewed button
 %new - (void)dmVisualMsgsViewedButtonHandler:(UIBarButtonItem *)sender {
-    if (dmVisualMsgsViewedButtonEnabled) {
-        dmVisualMsgsViewedButtonEnabled = false;
-        [sender setTintColor:UIColor.labelColor];
+    [SCIUtils runFeature:@"Visual messages replay" block:^{
+        if (dmVisualMsgsViewedButtonEnabled) {
+            dmVisualMsgsViewedButtonEnabled = false;
+            [sender setTintColor:UIColor.labelColor];
 
-        [SCIUtils showToastForDuration:4.5 title:@"Visual messages can be replayed without expiring"];
-    }
-    else {
-        dmVisualMsgsViewedButtonEnabled = true;
-        [sender setTintColor:SCIUtils.SCIColor_Primary];
+            [SCIUtils showToastForDuration:4.5 title:@"Visual messages can be replayed without expiring"];
+        }
+        else {
+            dmVisualMsgsViewedButtonEnabled = true;
+            [sender setTintColor:SCIUtils.SCIColor_Primary];
 
-        [SCIUtils showToastForDuration:4.5 title:@"Visual messages will now expire after viewing"];
-    }
+            [SCIUtils showToastForDuration:4.5 title:@"Visual messages will now expire after viewing"];
+        }
+    }];
 }
 %end
 

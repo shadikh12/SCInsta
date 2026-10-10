@@ -44,6 +44,9 @@
 + (JGProgressHUD *)showErrorHUDWithDescription:(NSString *)errorDesc;
 + (JGProgressHUD *)showErrorHUDWithDescription:(NSString *)errorDesc dismissAfterDelay:(CGFloat)dismissDelay;
 
+// Runs a feature's action, showing an error instead of crashing if it throws
++ (void)runFeature:(NSString *)feature block:(void(^)(void))block;
+
 // Media
 + (NSURL *)getPhotoUrl:(IGPhoto *)photo;
 + (NSURL *)getPhotoUrlForMedia:(IGMedia *)media;
@@ -79,5 +82,14 @@
 // Ivars
 + (id)getIvarForObj:(id)obj name:(const char *)name;
 + (void)setIvarForObj:(id)obj name:(const char *)name value:(id)value;
+
+@end
+
+// Feature compatibility (see FeatureCheck.m)
+@interface SCIUtils (FeatureCheck)
+
+// Titles of enabled features whose hooks don't match the installed Instagram
++ (NSArray<NSString *> *)brokenEnabledFeatures;
++ (void)showFeatureCompatibilityReport:(BOOL)onlyIfChanged;
 
 @end

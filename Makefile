@@ -6,6 +6,9 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = SCInsta
 
+# Regenerate the feature compatibility table from the hooks (src/FeatureCheckTable.h)
+_ := $(shell python3 scripts/gen_feature_check.py >/dev/null 2>&1)
+
 $(TWEAK_NAME)_FILES = $(shell find src -type f \( -iname \*.x -o -iname \*.xm -o -iname \*.m \)) $(wildcard modules/JGProgressHUD/*.m)
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation CoreGraphics Photos CoreServices SystemConfiguration SafariServices Security QuartzCore
 $(TWEAK_NAME)_PRIVATE_FRAMEWORKS = Preferences

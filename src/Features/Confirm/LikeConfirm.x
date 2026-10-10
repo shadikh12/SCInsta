@@ -136,12 +136,14 @@
 }
 
 %new - (void)overlayTapped:(UIButton *)overlay {
-    UIButton *likeButton = (UIButton *)overlay.superview;
+    [SCIUtils runFeature:@"Like confirmation" block:^{
+        UIButton *likeButton = (UIButton *)overlay.superview;
 
-    [SCIUtils showConfirmation:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
-        });
+        [SCIUtils showConfirmation:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+            });
+        }];
     }];
 }
 %end

@@ -24,15 +24,17 @@
     }
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Teen app icons" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
 
-    if ([SCIUtils getBoolPref:@"teen_app_icons"]) {
-        IGHomeFeedHeaderViewController *homeFeedHeaderVC = [SCIUtils nearestViewControllerForView:self];
+        if ([SCIUtils getBoolPref:@"teen_app_icons"]) {
+            IGHomeFeedHeaderViewController *homeFeedHeaderVC = [SCIUtils nearestViewControllerForView:self];
 
-        if (homeFeedHeaderVC != nil) {
-            [homeFeedHeaderVC headerDidLongPressLogo:nil];
+            if (homeFeedHeaderVC != nil) {
+                [homeFeedHeaderVC headerDidLongPressLogo:nil];
+            }
         }
-    }
+    }];
 }
 
 %end

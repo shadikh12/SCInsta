@@ -22,21 +22,23 @@
     }
 }
 %new - (void)handleLongPress:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils runFeature:@"Detailed color picker" block:^{
+        if (sender.state != UIGestureRecognizerStateBegan) return;
     
-    UIColorPickerViewController *colorPickerController = [[UIColorPickerViewController alloc] init];
+        UIColorPickerViewController *colorPickerController = [[UIColorPickerViewController alloc] init];
 
-    colorPickerController.delegate = (id<UIColorPickerViewControllerDelegate>)self; // cast to suppress warnings
-    colorPickerController.title = @"Select color";
-    colorPickerController.modalPresentationStyle = UIModalPresentationPopover;
-    colorPickerController.supportsAlpha = NO;
-    colorPickerController.selectedColor = self.color;
+        colorPickerController.delegate = (id<UIColorPickerViewControllerDelegate>)self; // cast to suppress warnings
+        colorPickerController.title = @"Select color";
+        colorPickerController.modalPresentationStyle = UIModalPresentationPopover;
+        colorPickerController.supportsAlpha = NO;
+        colorPickerController.selectedColor = self.color;
     
-    UIViewController *presentingVC = [SCIUtils nearestViewControllerForView:self];
+        UIViewController *presentingVC = [SCIUtils nearestViewControllerForView:self];
     
-    if (presentingVC != nil) {
-        [presentingVC presentViewController:colorPickerController animated:YES completion:nil];
-    }
+        if (presentingVC != nil) {
+            [presentingVC presentViewController:colorPickerController animated:YES completion:nil];
+        }
+    }];
 }
 
 // UIColorPickerViewControllerDelegate Protocol
