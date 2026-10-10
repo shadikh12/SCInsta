@@ -10,7 +10,7 @@ TWEAK_NAME = SCInsta
 _ := $(shell python3 scripts/gen_feature_check.py >/dev/null 2>&1)
 
 $(TWEAK_NAME)_FILES = $(shell find src -type f \( -iname \*.x -o -iname \*.xm -o -iname \*.m \)) $(wildcard modules/JGProgressHUD/*.m)
-$(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation CoreGraphics Photos CoreServices SystemConfiguration SafariServices Security QuartzCore
+$(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation CoreGraphics AVFoundation Photos CoreServices SystemConfiguration SafariServices Security QuartzCore
 $(TWEAK_NAME)_PRIVATE_FRAMEWORKS = Preferences
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wno-unsupported-availability-guard -Wno-unused-value -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unused-function -Wno-incompatible-pointer-types
 $(TWEAK_NAME)_LOGOSFLAGS = --c warnings=none

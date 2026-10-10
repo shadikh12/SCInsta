@@ -91,6 +91,8 @@
 @interface IGMedia : IGBaseMedia
 @property(readonly) IGVideo *video;
 @property(readonly) IGPhoto *photo;
+- (NSArray<IGMedia *> *)carouselMedia;
+- (IGMedia *)carouselParent;
 @end
 
 @interface IGPostItem : NSObject

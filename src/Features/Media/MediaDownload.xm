@@ -1,6 +1,7 @@
 #import "../../InstagramHeaders.h"
 #import "../../Utils.h"
 #import "../../Downloader/Download.h"
+#import "../../Downloader/BatchDownload.h"
 
 static SCIDownloadDelegate *imageDownloadDelegate;
 static SCIDownloadDelegate *videoDownloadDelegate;
@@ -12,6 +13,44 @@ static void initDownloaders () {
         imageDownloadDelegate = [[SCIDownloadDelegate alloc] initWithAction:quickLook showProgress:NO];
         videoDownloadDelegate = [[SCIDownloadDelegate alloc] initWithAction:share showProgress:YES];
     });
+}
+
+// Action sheet with one button per choice: @[@[title, block], ...]
+static void presentDownloadChoices(NSString *title, NSArray<NSArray *> *choices) {
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+
+    for (NSArray *choice in choices) {
+        void (^handler)(void) = choice[1];
+        [sheet addAction:[UIAlertAction actionWithTitle:choice[0] style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [SCIUtils runFeature:title block:handler];
+        }]];
+    }
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+    UIViewController *presenter = topMostController();
+    sheet.popoverPresentationController.sourceView = presenter.view;
+    sheet.popoverPresentationController.sourceRect = CGRectMake(CGRectGetMidX(presenter.view.bounds), CGRectGetMidY(presenter.view.bounds), 1, 1);
+
+    [presenter presentViewController:sheet animated:YES completion:nil];
+}
+
+// Urls of every item (photo or video) in a carousel post, or nil if it's not a carousel
+static NSArray<NSURL *> *carouselMediaUrls(IGMedia *media) {
+    if (![media respondsToSelector:@selector(carouselMedia)]) return nil;
+
+    // The cell may hold either the carousel itself or one of its items
+    NSArray<IGMedia *> *items = [media carouselMedia];
+    if (!items.count && [media respondsToSelector:@selector(carouselParent)]) {
+        items = [[media carouselParent] carouselMedia];
+    }
+
+    NSMutableArray<NSURL *> *urls = [NSMutableArray array];
+    for (IGMedia *item in items) {
+        NSURL *url = item.video ? [SCIUtils getVideoUrlForMedia:item] : [SCIUtils getPhotoUrlForMedia:item];
+        if (url) [urls addObject:url];
+    }
+
+    return urls;
 }
 
 /* * Feed * */
@@ -67,15 +106,30 @@ static void initDownloaders () {
 
         if (!photoUrl) {
             [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from post"];
-        
+
             return;
         }
 
         // Download image & show in share menu
-        initDownloaders();
-        [imageDownloadDelegate downloadFileWithURL:photoUrl
-                                     fileExtension:[[photoUrl lastPathComponent]pathExtension]
-                                          hudLabel:nil];
+        void (^downloadThis)(void) = ^{
+            initDownloaders();
+            [imageDownloadDelegate downloadFileWithURL:photoUrl
+                                         fileExtension:[[photoUrl lastPathComponent]pathExtension]
+                                              hudLabel:nil];
+        };
+
+        // Carousel posts: offer to download every item at once
+        IGMedia *post = [SCIUtils getIvarForObj:self.delegate name:"_post"];
+        NSArray<NSURL *> *carouselUrls = carouselMediaUrls(post);
+        if (carouselUrls.count < 2) {
+            downloadThis();
+            return;
+        }
+
+        presentDownloadChoices(@"Download", @[
+            @[@"This photo", downloadThis],
+            @[[NSString stringWithFormat:@"All %lu items", (unsigned long)carouselUrls.count], ^{ [SCIBatchDownload downloadAndShareURLs:carouselUrls]; }]
+        ]);
     }];
 }
 %end
@@ -202,10 +256,22 @@ static void initDownloaders () {
         }
 
         // Download video & show in share menu
-        initDownloaders();
-        [videoDownloadDelegate downloadFileWithURL:videoUrl
-                                     fileExtension:[[videoUrl lastPathComponent] pathExtension]
-                                          hudLabel:nil];
+        void (^downloadVideo)(void) = ^{
+            initDownloaders();
+            [videoDownloadDelegate downloadFileWithURL:videoUrl
+                                         fileExtension:[[videoUrl lastPathComponent] pathExtension]
+                                              hudLabel:nil];
+        };
+
+        if (![SCIUtils getBoolPref:@"dw_reel_audio"]) {
+            downloadVideo();
+            return;
+        }
+
+        presentDownloadChoices(@"Download reel", @[
+            @[@"Video", downloadVideo],
+            @[@"Audio only", ^{ [SCIBatchDownload downloadAudioFromVideoURL:videoUrl]; }]
+        ]);
     }];
 }
 %end
