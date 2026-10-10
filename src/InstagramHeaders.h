@@ -240,6 +240,9 @@
 @interface IGFollowListCollectionCell : UICollectionViewCell
 @end
 
+@interface IGStoryViewerCell : UICollectionViewCell
+@end
+
 @interface IGWindow : UIWindow
 @property (nonatomic) __weak IGUserSession *userSession;
 @end

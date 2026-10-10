@@ -251,6 +251,8 @@ static const SCIFeatureHook SCIFeatureHooks[] = {
     { "shh_mode_confirm", "Confirm shh mode", "IGDirectThreadViewController", "swipeableScrollManagerDidEndDraggingAboveSwipeThreshold:", NO },
     { "show_follows_you", "Show if user follows you", "IGProfileViewController", "viewDidAppear:", NO },
     { "sticker_interact_confirm", "Confirm sticker interaction", "IGStoryViewerTapTarget", "_didTap:forEvent:", NO },
+    { "story_viewer_follow_marks", "Mark story viewers who don't follow you", "IGStoryViewerCell", "layoutSubviews", NO },
+    { "story_viewer_follow_marks", "Mark story viewers who don't follow you", "IGStoryViewerSectionController.IGStoryViewerSectionController", "cellForItemAtIndex:", NO },
     { "tweak_settings_app_launch", "Show tweak settings on app launch", "IGInstagramAppDelegate", "application:didFinishLaunchingWithOptions:", NO },
     { "unfollow_confirm", "Confirm unfollow", "IGFollowing.IGFollowController", "performUnfollow", NO },
     { "unlimited_replay", "Unlimited replay of visual messages", "IGDirectVisualMessageViewerEventHandler", "visualMessageViewerController:didBeginPlaybackForVisualMessage:atIndex:", NO },
