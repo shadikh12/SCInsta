@@ -210,6 +210,8 @@
 @property(copy) NSString *username;
 @property BOOL followsCurrentUser;
 @property(retain) id friendshipStatus; // IGAPIRelationshipInfoDict, nil until loaded
+- (NSString *)fullName;
+- (NSString *)biography;
 @end
 
 @interface IGFollowController : NSObject 
@@ -230,6 +232,10 @@
 - (IGUser *)user;
 - (IGUserSession *)userSession;
 - (void)showFollowsYouIndicatorWithAttempt:(NSInteger)attempt; // new
+- (void)handleProfileCopyLongPress:(UILongPressGestureRecognizer *)sender; // new
+@end
+
+@interface IGFollowListCollectionCell : UICollectionViewCell
 @end
 
 @interface IGWindow : UIWindow
