@@ -55,6 +55,15 @@ static void initDownloaders () {
     }
 
     NSURL *photoUrl = [SCIUtils getPhotoUrl:photo];
+
+    // Newer IG versions (carousel cells are Swift): use the url of the displayed image
+    if (!photoUrl) {
+        IGImageProgressView *_photoImageView = [SCIUtils getIvarForObj:self name:"_photoImageView"];
+        if ([_photoImageView respondsToSelector:@selector(imageSpecifier)]) {
+            photoUrl = _photoImageView.imageSpecifier.url;
+        }
+    }
+
     if (!photoUrl) {
         [SCIUtils showErrorHUDWithDescription:@"Could not extract photo url from post"];
         

@@ -2,6 +2,9 @@
 #import "../../Tweak.h"
 #import "../../Utils.h"
 
+// Lets the seen button through the "no seen" block below
+static BOOL forceMarkSeen = NO;
+
 // Seen buttons (in DMs)
 // - Enables no seen for messages
 // - Enables unlimited views of DM visual messages
@@ -41,11 +44,23 @@
 // Messages seen button
 %new - (void)seenButtonHandler:(UIBarButtonItem *)sender {
     UIViewController *nearestVC = [SCIUtils nearestViewControllerForView:self];
-    if ([nearestVC isKindOfClass:%c(IGDirectThreadViewController)]) {
-        [(IGDirectThreadViewController *)nearestVC markLastMessageAsSeen];
+    if (![nearestVC isKindOfClass:%c(IGDirectThreadViewController)]) return;
 
-        [SCIUtils showToastForDuration:2.5 title:@"Marked messages as seen"];
+    // Newer IG versions moved markLastMessageAsSeen to the thread's feature manager
+    id seenTarget = nearestVC;
+    if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
+        seenTarget = [SCIUtils getIvarForObj:nearestVC name:"_featureManager"];
     }
+    if (![seenTarget respondsToSelector:@selector(markLastMessageAsSeen)]) {
+        [SCIUtils showErrorHUDWithDescription:@"Could not mark messages as seen"];
+        return;
+    }
+
+    forceMarkSeen = YES;
+    [seenTarget markLastMessageAsSeen];
+    forceMarkSeen = NO;
+
+    [SCIUtils showToastForDuration:2.5 title:@"Marked messages as seen"];
 }
 // DM visual messages viewed button
 %new - (void)dmVisualMsgsViewedButtonHandler:(UIBarButtonItem *)sender {
@@ -67,7 +82,7 @@
 // Messages seen logic
 %hook IGDirectThreadViewListAdapterDataSource
 - (BOOL)shouldUpdateLastSeenMessage {
-    if ([SCIUtils getBoolPref:@"remove_lastseen"]) {
+    if ([SCIUtils getBoolPref:@"remove_lastseen"] && !forceMarkSeen) {
         return false;
     }
     
