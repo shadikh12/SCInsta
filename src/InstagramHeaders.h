@@ -209,6 +209,7 @@
 @property NSInteger followStatus;
 @property(copy) NSString *username;
 @property BOOL followsCurrentUser;
+@property(retain) id friendshipStatus; // IGAPIRelationshipInfoDict, nil until loaded
 @end
 
 @interface IGFollowController : NSObject 
@@ -223,6 +224,12 @@
 
 @interface IGUserSession : NSObject
 @property (readonly, nonatomic) IGUser *user;
+@end
+
+@interface IGProfileViewController : UIViewController
+- (IGUser *)user;
+- (IGUserSession *)userSession;
+- (void)showFollowsYouIndicatorWithAttempt:(NSInteger)attempt; // new
 @end
 
 @interface IGWindow : UIWindow
