@@ -120,7 +120,9 @@
                                                 [SCISetting switchCellWithTitle:@"Download reels" subtitle:@"Long-press with finger(s) on a reel to download" defaultsKey:@"dw_reels"],
                                                 [SCISetting switchCellWithTitle:@"Reel audio download" subtitle:@"When downloading a reel, choose between the video or its audio only" defaultsKey:@"dw_reel_audio"],
                                                 [SCISetting switchCellWithTitle:@"Download stories" subtitle:@"Long-press with finger(s) while viewing someone's story to download" defaultsKey:@"dw_story"],
-                                                [SCISetting switchCellWithTitle:@"Save profile picture" subtitle:@"On someone's profile, click their profile picture to enlarge it, then hold to download" defaultsKey:@"save_profile"]
+                                                [SCISetting switchCellWithTitle:@"Save profile picture" subtitle:@"On someone's profile, click their profile picture to enlarge it, then hold to download" defaultsKey:@"save_profile"],
+                                                [SCISetting switchCellWithTitle:@"Download voice messages" subtitle:@"Long-press with finger(s) on a voice message in DMs to download it" defaultsKey:@"dw_voice_messages"],
+                                                [SCISetting switchCellWithTitle:@"Save DM photos & videos" subtitle:@"Shows Instagram's save button on any photo or video in DMs (open it full screen, then tap ⋯)" defaultsKey:@"dw_dm_media"]
                                             ]
                                         },
                                         @{

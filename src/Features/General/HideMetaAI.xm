@@ -252,7 +252,10 @@
 {
     BOOL showAiRestyle = [SCIUtils getBoolPref:@"hide_meta_ai"] ? false : arg6;
 
-    return %orig(arg1, arg2, arg3, arg4, arg5, showAiRestyle, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
+    // Shows Instagram's own save button on any photo/video sent in DMs
+    BOOL canSave = [SCIUtils getBoolPref:@"dw_dm_media"] ? true : arg4;
+
+    return %orig(arg1, arg2, arg3, canSave, arg5, showAiRestyle, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
 }
 %end
 
