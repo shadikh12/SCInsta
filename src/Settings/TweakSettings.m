@@ -1,5 +1,8 @@
 #import "TweakSettings.h"
 
+// Feature screens
+void SCIShowDeletedMessagesLog(void);
+
 @implementation SCITweakSettings
 
 // MARK: - Sections
@@ -140,6 +143,11 @@
                                             @"header": @"Messages",
                                             @"rows": @[
                                                 [SCISetting switchCellWithTitle:@"Keep deleted messages" subtitle:@"Saves deleted messages in chat conversations" defaultsKey:@"keep_deleted_message"],
+                                                [SCISetting switchCellWithTitle:@"Save deleted messages" subtitle:@"Keeps a log of messages people unsend (text, sender, chat and time), and shows a notice when it happens" defaultsKey:@"log_deleted_messages"],
+                                                [SCISetting buttonCellWithTitle:@"View deleted messages"
+                                                                       subtitle:@"Messages unsent while you had the chat open"
+                                                                           icon:[SCISymbol symbolWithName:@"trash.slash"]
+                                                                         action:^(void) { SCIShowDeletedMessagesLog(); }],
                                                 [SCISetting switchCellWithTitle:@"Manually mark messages as seen" subtitle:@"Adds a button to DM threads, which will mark messages as seen" defaultsKey:@"remove_lastseen"],
                                                 [SCISetting switchCellWithTitle:@"Disable typing status" subtitle:@"Prevents the typing indicator from being shown to others when you're typing in DMs" defaultsKey:@"disable_typing_status"],
                                             ]

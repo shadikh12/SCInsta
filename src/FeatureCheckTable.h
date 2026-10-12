@@ -171,6 +171,8 @@ static const SCIFeatureHook SCIFeatureHooks[] = {
     { "like_confirm_reels", "Confirm like: Reels", "IGSundialViewerVideoCell", "controlsOverlayControllerDidTapLikeButton:", NO },
     { "like_confirm_reels", "Confirm like: Reels", "IGSundialViewerVideoCell", "gestureController:didObserveDoubleTap:", NO },
     { "liquid_glass_buttons", "Enable liquid glass buttons", "IGInstagramAppDelegate", "application:willFinishLaunchingWithOptions:", NO },
+    { "log_deleted_messages", "Save deleted messages", "_TtC19IGDirectMessageCell19IGDirectMessageCell", "configureWithViewModel:ringViewSpecFactory:mobileConfig:", NO },
+    { "log_deleted_messages", "Save deleted messages", "_TtC26IGDirectTextMessageUISwift23IGDirectTextMessageCell", "configureWithViewModel:userSession:ringViewSpecFactory:", NO },
     { "no_recent_searches", "Do not save recent searches", "IGDirectRecipientRecentSearchStorage", "initWithDiskManager:directCache:userStore:currentUser:featureSets:", NO },
     { "no_recent_searches", "Do not save recent searches", "IGRecentSearchStore", "addItem:", NO },
     { "no_recent_searches", "Do not save recent searches", "IGRecentSearchStore", "initWithDiskManager:recentSearchStoreConfiguration:", NO },

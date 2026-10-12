@@ -83,6 +83,15 @@
 + (id)getIvarForObj:(id)obj name:(const char *)name;
 + (void)setIvarForObj:(id)obj name:(const char *)name value:(id)value;
 
+// Breadth-first search through an object's ivars (and theirs, up to maxDepth) for the first
+// object of a class. For Swift models whose ivar names/layout change between IG versions
++ (id)findIvarObjectOfClass:(Class)cls inObject:(id)root maxDepth:(NSInteger)maxDepth;
+
+// Files in Documents/SCInsta (created on demand)
++ (NSURL *)dataFileURLWithName:(NSString *)name;
++ (id)loadJSONFileWithName:(NSString *)name;
++ (void)saveJSONObject:(id)object toFileWithName:(NSString *)name;
+
 @end
 
 // Feature compatibility (see FeatureCheck.m)

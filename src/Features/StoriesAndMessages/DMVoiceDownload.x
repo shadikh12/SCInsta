@@ -1,4 +1,3 @@
-#import <objc/runtime.h>
 #import "../../InstagramHeaders.h"
 #import "../../Utils.h"
 #import "../../Downloader/Download.h"
@@ -15,49 +14,8 @@
 - (void)handleVoiceDownload:(UILongPressGestureRecognizer *)sender;
 @end
 
-// Breadth-first search through object ivars for the first object of a given class.
-// The audio model lives in Swift view models whose layout changes between IG versions
-static id findIvarObjectOfClass(id root, Class target, NSInteger maxDepth) {
-    if (!root || !target) return nil;
-
-    NSMutableArray *level = [NSMutableArray arrayWithObject:root];
-    NSHashTable *visited = [NSHashTable weakObjectsHashTable];
-
-    for (NSInteger depth = 0; depth <= maxDepth && level.count; depth++) {
-        NSMutableArray *next = [NSMutableArray array];
-
-        for (id obj in level) {
-            if ([visited containsObject:obj]) continue;
-            [visited addObject:obj];
-
-            if ([obj isKindOfClass:target]) return obj;
-
-            for (Class cls = object_getClass(obj); cls && cls != [NSObject class] && cls != [UIView class] && cls != [UICollectionViewCell class]; cls = class_getSuperclass(cls)) {
-                unsigned int count = 0;
-                Ivar *ivars = class_copyIvarList(cls, &count);
-
-                for (unsigned int i = 0; i < count; i++) {
-                    const char *type = ivar_getTypeEncoding(ivars[i]);
-                    if (!type || type[0] != '@') continue;
-
-                    id value = object_getIvar(obj, ivars[i]);
-                    if (!value || [value isKindOfClass:[UIView class]] || [value isKindOfClass:[UIViewController class]]) continue;
-
-                    [next addObject:value];
-                }
-
-                free(ivars);
-            }
-        }
-
-        level = next;
-    }
-
-    return nil;
-}
-
 static NSURL *voiceMessageURL(id cell) {
-    id directAudio = findIvarObjectOfClass(cell, %c(IGDirectAudio), 3);
+    id directAudio = [SCIUtils findIvarObjectOfClass:%c(IGDirectAudio) inObject:cell maxDepth:3];
     if (!directAudio) return nil;
 
     IGAudio *serverAudio = [SCIUtils getIvarForObj:directAudio name:"_server_audio"];

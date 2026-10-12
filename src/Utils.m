@@ -327,5 +327,62 @@
     object_setIvarWithStrongDefault(obj, ivar, value);
 }
 
++ (id)findIvarObjectOfClass:(Class)target inObject:(id)root maxDepth:(NSInteger)maxDepth {
+    if (!root || !target) return nil;
+
+    NSMutableArray *level = [NSMutableArray arrayWithObject:root];
+    NSHashTable *visited = [NSHashTable hashTableWithOptions:NSPointerFunctionsObjectPointerPersonality | NSPointerFunctionsWeakMemory];
+
+    for (NSInteger depth = 0; depth <= maxDepth && level.count; depth++) {
+        NSMutableArray *next = [NSMutableArray array];
+
+        for (id obj in level) {
+            if ([visited containsObject:obj]) continue;
+            [visited addObject:obj];
+
+            if ([obj isKindOfClass:target]) return obj;
+
+            for (Class cls = object_getClass(obj); cls && cls != [NSObject class] && cls != [UIView class] && cls != [UICollectionViewCell class]; cls = class_getSuperclass(cls)) {
+                unsigned int count = 0;
+                Ivar *ivars = class_copyIvarList(cls, &count);
+
+                for (unsigned int i = 0; i < count; i++) {
+                    const char *type = ivar_getTypeEncoding(ivars[i]);
+                    if (!type || type[0] != '@') continue;
+
+                    id value = object_getIvar(obj, ivars[i]);
+                    if (!value || [value isKindOfClass:[UIView class]] || [value isKindOfClass:[UIViewController class]]) continue;
+
+                    [next addObject:value];
+                }
+
+                free(ivars);
+            }
+        }
+
+        level = next;
+    }
+
+    return nil;
+}
+
++ (NSURL *)dataFileURLWithName:(NSString *)name {
+    NSURL *documents = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject];
+    NSURL *dir = [documents URLByAppendingPathComponent:@"SCInsta" isDirectory:YES];
+    [[NSFileManager defaultManager] createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil];
+
+    return [dir URLByAppendingPathComponent:name];
+}
++ (id)loadJSONFileWithName:(NSString *)name {
+    NSData *data = [NSData dataWithContentsOfURL:[self dataFileURLWithName:name]];
+    if (!data) return nil;
+
+    return [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+}
++ (void)saveJSONObject:(id)object toFileWithName:(NSString *)name {
+    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
+    [data writeToURL:[self dataFileURLWithName:name] atomically:YES];
+}
+
 
 @end
