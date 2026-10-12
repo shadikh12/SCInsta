@@ -10,6 +10,11 @@
 - (NSURL *)fallbackURL;
 @end
 
+@interface _TtC22IGDirectAudioMessageUI24IGDirectAudioMessageCell : UICollectionViewCell
+- (void)addVoiceDownloadGesture;
+- (void)handleVoiceDownload:(UILongPressGestureRecognizer *)sender;
+@end
+
 // Breadth-first search through object ivars for the first object of a given class.
 // The audio model lives in Swift view models whose layout changes between IG versions
 static id findIvarObjectOfClass(id root, Class target, NSInteger maxDepth) {
