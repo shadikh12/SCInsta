@@ -36,6 +36,7 @@
                                                 [SCISetting switchCellWithTitle:@"Show if user follows you" subtitle:@"When opening a profile, shows if they follow you back, and if they're a close friend, muted or restricted" defaultsKey:@"show_follows_you"],
                                                 [SCISetting switchCellWithTitle:@"Mark users who don't follow back" subtitle:@"Shows \"Doesn't follow you\" next to users in follower & following lists" defaultsKey:@"follow_back_marks"],
                                                 [SCISetting switchCellWithTitle:@"Profile copy menu" subtitle:@"Hold two fingers on a profile to copy its username, name, bio or link" defaultsKey:@"profile_copy_menu" requiresRestart:YES],
+                                                [SCISetting switchCellWithTitle:@"Detailed dates" subtitle:@"Shows the full date and time instead of relative times like \"2h\" or \"3d\"" defaultsKey:@"detailed_dates"],
                                                 [SCISetting switchCellWithTitle:@"Clean share links" subtitle:@"Removes tracking codes (igsh, utm) from copied Instagram links" defaultsKey:@"clean_share_links"],
                                                 [SCISetting switchCellWithTitle:@"Do not save recent searches" subtitle:@"Search bars will no longer save your recent searches" defaultsKey:@"no_recent_searches"],
                                                 [SCISetting switchCellWithTitle:@"Use detailed color picker" subtitle:@"Long press on the eyedropper tool in stories to customize the text color more precisely" defaultsKey:@"detailed_color_picker"],
@@ -90,6 +91,7 @@
                                                 [SCISetting switchCellWithTitle:@"Always show progress scrubber" subtitle:@"Forces the progress bar to appear on every reel" defaultsKey:@"reels_show_scrubber"],
                                                 [SCISetting switchCellWithTitle:@"Disable auto-unmuting reels" subtitle:@"Prevents reels from unmuting when the volume/silent button is pressed" defaultsKey:@"disable_auto_unmuting_reels" requiresRestart:YES],
                                                 [SCISetting switchCellWithTitle:@"Confirm reel refresh" subtitle:@"Shows an alert when you trigger a reels refresh" defaultsKey:@"refresh_reel_confirm"],
+                                                [SCISetting switchCellWithTitle:@"Reels auto-advance" subtitle:@"Automatically scrolls to the next reel when the current one ends" defaultsKey:@"reels_auto_advance" requiresRestart:YES],
                                             ]
                                         },
                                         @{
