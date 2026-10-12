@@ -27,6 +27,7 @@ BOOL dmVisualMsgsViewedButtonEnabled = false;
         @"copy_description": @(YES),
         @"detailed_color_picker": @(YES),
         @"remove_screenshot_alert": @(YES),
+        @"story_seen_button": @(YES),
         @"call_confirm": @(YES),
         @"keep_deleted_message": @(YES),
         @"dw_feed_posts": @(YES),
