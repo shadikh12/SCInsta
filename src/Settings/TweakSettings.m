@@ -160,6 +160,7 @@ void SCIShowDeletedMessagesLog(void);
                                                 [SCISetting switchCellWithTitle:@"Disable screenshot detection" subtitle:@"Removes the screenshot-prevention features for visual messages in DMs" defaultsKey:@"remove_screenshot_alert"],
                                                 [SCISetting switchCellWithTitle:@"Disable story seen receipt" subtitle:@"Hides the notification for others when you view their story" defaultsKey:@"no_seen_receipt"],
                                                 [SCISetting switchCellWithTitle:@"Story seen button" subtitle:@"Adds an eye button while viewing stories, to turn seen receipts on/off or mark the current story as seen" defaultsKey:@"story_seen_button"],
+                                                [SCISetting switchCellWithTitle:@"Show story mentions" subtitle:@"Adds \"Mentions\" to the story eye button, listing everyone mentioned in the story, including hidden mentions" defaultsKey:@"story_mentions"],
                                                 [SCISetting switchCellWithTitle:@"Mark story viewers who don't follow you" subtitle:@"In your story viewers list, shows \"Doesn't follow you\" under viewers who don't follow you" defaultsKey:@"story_viewer_follow_marks"],
                                                 [SCISetting switchCellWithTitle:@"Disable instants creation" subtitle:@"Hides the functionality to create/send instants" defaultsKey:@"disable_instants_creation" requiresRestart:YES]
                                             ]
