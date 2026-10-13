@@ -8,6 +8,21 @@
 
 static NSString *const kNoSeenPref = @"no_seen_receipt";
 static const NSInteger kSeenButtonTag = 0x5C1F0D;
+static const CGFloat kButtonSize = 32;
+static NSString *const kButtonXPref = @"story_button_x";
+static NSString *const kButtonYPref = @"story_button_y";
+
+// Keeps the button fully on screen and out of the status bar / home indicator areas
+static CGPoint clampedButtonCenter(CGPoint center, UIView *container) {
+    UIEdgeInsets insets = container.safeAreaInsets;
+    CGFloat half = kButtonSize / 2 + 4;
+    CGSize size = container.bounds.size;
+
+    center.x = MIN(MAX(center.x, insets.left + half), size.width - insets.right - half);
+    center.y = MIN(MAX(center.y, insets.top + half), size.height - insets.bottom - half);
+
+    return center;
+}
 
 // Lets manually marked stories through (uploads are batched, so allow a short window)
 static BOOL forceStorySeen = NO;
@@ -28,6 +43,8 @@ static BOOL blockStorySeen(void) {
 - (void)sci_updateSeenButton;
 - (void)sci_markCurrentStorySeen;
 - (void)sci_toggleNoSeenMode;
+- (void)sci_storyButtonTapped:(UIButton *)button;
+- (void)sci_storyButtonDragged:(UIPanGestureRecognizer *)pan;
 - (NSArray<NSDictionary *> *)sci_currentStoryMentions;
 - (void)sci_showMentions;
 @end
@@ -99,68 +116,104 @@ static BOOL storyButtonEnabled(void) {
         button = [UIButton buttonWithType:UIButtonTypeSystem];
         button.tag = kSeenButtonTag;
         button.tintColor = [UIColor whiteColor];
-        button.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.35];
-        button.layer.cornerRadius = 18;
-        button.showsMenuAsPrimaryAction = YES;
-        button.accessibilityLabel = @"Story seen options";
+        button.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        button.layer.cornerRadius = kButtonSize / 2;
+        button.accessibilityLabel = @"Story options";
+        button.accessibilityHint = @"Drag to move";
+        [button addTarget:self action:@selector(sci_storyButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+
+        // Drag the button anywhere; the position is remembered
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(sci_storyButtonDragged:)];
+        [button addGestureRecognizer:pan];
+
         [self.view addSubview:button];
     }
 
-    // Right edge, just under the story header
-    CGFloat top = self.view.safeAreaInsets.top + 64;
-    button.frame = CGRectMake(CGRectGetWidth(self.view.bounds) - 36 - 12, top, 36, 36);
+    // Saved position is the button centre, as a fraction of the screen
+    NSNumber *savedX = [[NSUserDefaults standardUserDefaults] objectForKey:kButtonXPref];
+    NSNumber *savedY = [[NSUserDefaults standardUserDefaults] objectForKey:kButtonYPref];
+    CGSize size = self.view.bounds.size;
+
+    BOOL dragging = NO;
+    for (UIGestureRecognizer *gesture in button.gestureRecognizers) {
+        if (gesture.state == UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) dragging = YES;
+    }
+
+    button.bounds = CGRectMake(0, 0, kButtonSize, kButtonSize);
+    if (!dragging) {
+        button.center = clampedButtonCenter(CGPointMake((savedX ? savedX.doubleValue : 0.93) * size.width,
+                                                        (savedY ? savedY.doubleValue : 0.36) * size.height), self.view);
+    }
     [self.view bringSubviewToFront:button];
 
-    [self sci_updateSeenButton];
+    BOOL noSeen = [SCIUtils getBoolPref:kNoSeenPref];
+    UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:14 weight:UIImageSymbolWeightSemibold];
+    [button setImage:[UIImage systemImageNamed:noSeen ? @"eye.slash" : @"eye" withConfiguration:config] forState:UIControlStateNormal];
 }
 
 %new - (void)sci_updateSeenButton {
-    UIButton *button = [self.view viewWithTag:kSeenButtonTag];
-    if (!button) return;
+    [self sci_addSeenButton];
+}
 
+%new - (void)sci_storyButtonDragged:(UIPanGestureRecognizer *)pan {
+    UIView *button = pan.view;
+    CGPoint translation = [pan translationInView:self.view];
+
+    button.center = clampedButtonCenter(CGPointMake(button.center.x + translation.x, button.center.y + translation.y), self.view);
+    [pan setTranslation:CGPointZero inView:self.view];
+
+    if (pan.state == UIGestureRecognizerStateEnded || pan.state == UIGestureRecognizerStateCancelled) {
+        CGSize size = self.view.bounds.size;
+        [[NSUserDefaults standardUserDefaults] setDouble:button.center.x / size.width forKey:kButtonXPref];
+        [[NSUserDefaults standardUserDefaults] setDouble:button.center.y / size.height forKey:kButtonYPref];
+    }
+}
+
+%new - (void)sci_storyButtonTapped:(UIButton *)button {
     BOOL noSeen = [SCIUtils getBoolPref:kNoSeenPref];
-    [button setImage:[UIImage systemImageNamed:noSeen ? @"eye.slash" : @"eye"] forState:UIControlStateNormal];
 
-    __weak typeof(self) weakSelf = self;
-    NSMutableArray<UIMenuElement *> *children = [NSMutableArray array];
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:[SCIUtils getBoolPref:@"story_seen_button"]
+                                                                           ? (noSeen ? @"Others can't see you viewed their stories" : @"Others can see you viewed their stories")
+                                                                           : nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
 
     if ([SCIUtils getBoolPref:@"story_seen_button"]) {
-        UIAction *markSeen = [UIAction actionWithTitle:@"Mark this story as seen"
-                                                 image:[UIImage systemImageNamed:@"checkmark.circle"]
-                                            identifier:nil
-                                               handler:^(UIAction *action) { [weakSelf sci_markCurrentStorySeen]; }];
-        if (!noSeen) markSeen.attributes = UIMenuElementAttributesDisabled;
+        if (noSeen) {
+            [sheet addAction:[UIAlertAction actionWithTitle:@"Mark this story as seen" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                [self sci_markCurrentStorySeen];
+            }]];
+        }
 
-        UIAction *toggle = [UIAction actionWithTitle:noSeen ? @"Turn seen receipts back on" : @"Hide that I viewed stories"
-                                               image:[UIImage systemImageNamed:noSeen ? @"eye" : @"eye.slash"]
-                                          identifier:nil
-                                             handler:^(UIAction *action) { [weakSelf sci_toggleNoSeenMode]; }];
-
-        [children addObject:[UIMenu menuWithTitle:noSeen ? @"Others can't see you viewed their stories" : @"Others can see you viewed their stories"
-                                            image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[markSeen, toggle]]];
-    }
-
-    // Built when the menu opens, so it matches the story currently on screen
-    if ([SCIUtils getBoolPref:@"story_mentions"]) {
-        [children addObject:[UIDeferredMenuElement elementWithUncachedProvider:^(void (^completion)(NSArray<UIMenuElement *> *)) {
-            NSArray *mentions = [weakSelf sci_currentStoryMentions];
-            NSUInteger hidden = [[mentions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden == YES"]] count];
-
-            NSString *title = !mentions.count ? @"No mentions in this story"
-                            : hidden ? [NSString stringWithFormat:@"Mentions: %lu (%lu hidden)", (unsigned long)mentions.count, (unsigned long)hidden]
-                            : [NSString stringWithFormat:@"Mentions: %lu", (unsigned long)mentions.count];
-
-            UIAction *show = [UIAction actionWithTitle:title
-                                                 image:[UIImage systemImageNamed:@"at"]
-                                            identifier:nil
-                                               handler:^(UIAction *action) { [weakSelf sci_showMentions]; }];
-            if (!mentions.count) show.attributes = UIMenuElementAttributesDisabled;
-
-            completion(@[[UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[show]]]);
+        [sheet addAction:[UIAlertAction actionWithTitle:noSeen ? @"Turn seen receipts back on" : @"Hide that I viewed stories" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self sci_toggleNoSeenMode];
         }]];
     }
 
-    button.menu = [UIMenu menuWithChildren:children];
+    if ([SCIUtils getBoolPref:@"story_mentions"]) {
+        NSArray *mentions = [self sci_currentStoryMentions];
+        NSUInteger hidden = [[mentions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden == YES"]] count];
+
+        if (mentions.count) {
+            NSString *title = hidden ? [NSString stringWithFormat:@"Mentions: %lu (%lu hidden)", (unsigned long)mentions.count, (unsigned long)hidden]
+                                     : [NSString stringWithFormat:@"Mentions: %lu", (unsigned long)mentions.count];
+
+            [sheet addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                [self sci_showMentions];
+            }]];
+        }
+        else {
+            UIAlertAction *none = [UIAlertAction actionWithTitle:@"No mentions in this story" style:UIAlertActionStyleDefault handler:nil];
+            none.enabled = NO;
+            [sheet addAction:none];
+        }
+    }
+
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+    sheet.popoverPresentationController.sourceView = button;
+    sheet.popoverPresentationController.sourceRect = button.bounds;
+    [self presentViewController:sheet animated:YES completion:nil];
 }
 
 // Everyone mentioned in the current story, including mentions hidden by making them tiny,
